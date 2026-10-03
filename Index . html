@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F0B6C1">
+<title>Week Hours – Count time in weeks of 168 hours</title>
+<meta name="description" content="Pick any date and see how many hours have passed or remain, grouped into weeks of 168 hours. Free, private, works offline.">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iI0YwQjZDMSIvPgogIDxyZWN0IHg9Ijg2IiB5PSIxNDYiIHdpZHRoPSIzNDAiIGhlaWdodD0iMjIwIiByeD0iMzYiIGZpbGw9IiMxNzE3MTciLz4KICA8cmVjdCB4PSI4NiIgeT0iMjUzIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjYiIGZpbGw9IiMwMDAiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjMxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjE1MCIgZmlsbD0iI0VDRUNFQyI+MTY4PC90ZXh0Pgo8L3N2Zz4K" type="image/svg+xml">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iI0YwQjZDMSIvPgogIDxyZWN0IHg9Ijg2IiB5PSIxNDYiIHdpZHRoPSIzNDAiIGhlaWdodD0iMjIwIiByeD0iMzYiIGZpbGw9IiMxNzE3MTciLz4KICA8cmVjdCB4PSI4NiIgeT0iMjUzIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjYiIGZpbGw9IiMwMDAiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjMxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjE1MCIgZmlsbD0iI0VDRUNFQyI+MTY4PC90ZXh0Pgo8L3N2Zz4K">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Week Hours">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Week Hours">
+<meta property="og:description" content="Count any date in hours, grouped into weeks of 168.">
+<meta name="twitter:card" content="summary">
+<style>
+  :root {
+    --pink: #F0B6C1;
+    --btn: #F2BAC4;
+    --btn-ink: #5E4249;
+    --ink: #3F3033;
+    --muted: #7A6A6E;
+    --lcd: #D3DCB0;
+    --lcd-edge: #B8C493;
+    --lcd-ink: #25301F;
+    --seg-on: #E8909F;
+    --line: #D8CDD0;
+    --card-bg: #171717;
+    --digit: #ECECEC;
+  }
+  * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--pink); color: var(--ink); min-height: 100vh;
+    padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+    font-family: "Avenir Next", "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.4;
+  }
+
+  .device {
+    max-width: 520px; margin: 0 auto; background: #FAFAFA; border-radius: 40px;
+    padding: 22px 16px; min-height: calc(100vh - 28px);
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.7), 0 3px 0 rgba(120,50,70,.18);
+  }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 0 6px 18px; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+  header p { font-size: 13px; color: var(--muted); }
+  .led { width: 40px; height: 16px; border-radius: 8px; background: linear-gradient(#D4D9DF, #B7BEC8); box-shadow: inset 0 1px 2px rgba(0,0,0,.2); }
+
+  .timer { margin-bottom: 26px; }
+  .screen {
+    container-type: inline-size; position: relative;
+    background: #050505; border-radius: 24px; padding: 14px 3cqw 14px;
+    border: 5px solid #E9E2E4;
+    --fs: 22cqw;
+  }
+  .bar { display: flex; justify-content: space-between; align-items: center; margin: 0 1cqw 12px; }
+  .screen .cl { font-size: 12px; font-weight: 800; color: #fff; letter-spacing: .4px; }
+  .dy { display: flex; align-items: center; gap: 8px; --fsz: calc(var(--fs) * .38); }
+  .dy .lab { margin: 0; }
+  .row { display: flex; align-items: flex-end; justify-content: center; gap: 2.4cqw; }
+  .grp { text-align: center; }
+  .grp.small { --fsz: calc(var(--fs) * .5); }
+  .lab { font-size: 10px; color: #9A9A9A; margin-top: 7px; font-weight: 700; letter-spacing: .6px; }
+
+  .realtime {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 12px 1cqw 0; padding: 8px 10px;
+    background: #0E0E0E; border-radius: 12px; border: 1px solid #1F1F1F;
+    font-variant-numeric: tabular-nums;
+  }
+  .realtime .rt-date { font-size: 12px; font-weight: 700; color: #C9C9C9; letter-spacing: .3px; }
+  .realtime .rt-week {
+    font-size: 11px; font-weight: 800; color: #0E0E0E; background: var(--seg-on);
+    padding: 3px 8px; border-radius: 99px; letter-spacing: .5px;
+  }
+  .realtime .rt-time { font-size: 13px; font-weight: 800; color: #ECECEC; letter-spacing: .5px; }
+
+  .flip {
+    position: relative; display: inline-block; background: var(--card-bg);
+    border-radius: .14em; perspective: 700px;
+    font-size: var(--fsz, var(--fs, 16vw));
+  }
+  .sizer, .half span {
+    font-weight: 700; letter-spacing: -.02em; line-height: 1;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .sizer { display: block; visibility: hidden; padding: .06em .13em; }
+  .half {
+    position: absolute; left: 0; right: 0; height: 50%; overflow: hidden;
+    background: var(--card-bg); color: var(--digit);
+  }
+  .half span { position: absolute; left: 0; right: 0; height: 200%; display: flex; align-items: center; justify-content: center; }
+  .top { top: 0; border-radius: .14em .14em 0 0; }
+  .top span { top: 0; }
+  .bot { bottom: 0; border-radius: 0 0 .14em .14em; }
+  .bot span { bottom: 0; }
+  .flip::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%; height: max(2px, .025em);
+    transform: translateY(-50%); background: #000; z-index: 6;
+  }
+  .flap-top { z-index: 3; transform-origin: center bottom; backface-visibility: hidden; animation: flipTop .3s ease-in forwards; }
+  .flap-bot { z-index: 3; transform-origin: center top; backface-visibility: hidden; transform: rotateX(90deg); animation: flipBot .3s .3s ease-out forwards; }
+  @keyframes flipTop { to { transform: rotateX(-90deg); } }
+  @keyframes flipBot { to { transform: rotateX(0); } }
+
+  .info { padding: 14px 6px 0; }
+  .line1 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .name { font-size: 18px; font-weight: 700; word-break: break-word; }
+  .wk { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .tools { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+
+  .btn {
+    font: inherit; font-size: 13px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+    background: var(--btn); color: var(--btn-ink); border: 0; border-radius: 99px;
+    padding: 13px 26px; cursor: pointer; box-shadow: inset 0 -3px 0 rgba(120,50,70,.16);
+  }
+  .btn:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 rgba(120,50,70,.16); }
+  .btn.sm { padding: 8px 16px; font-size: 11px; }
+  .btn.ghost { background: transparent; box-shadow: inset 0 0 0 2px var(--line); }
+  .btn.armed { background: #C94B63; color: #fff; }
+  .btn:focus-visible, input:focus-visible, .chip:focus-visible { outline: 3px solid #7A4B57; outline-offset: 2px; }
+  .actions { position: sticky; bottom: calc(14px + env(safe-area-inset-bottom)); display: flex; justify-content: center; margin-top: 10px; }
+  .actions .btn { padding: 16px 40px; font-size: 14px; box-shadow: inset 0 -3px 0 rgba(120,50,70,.16), 0 8px 18px rgba(120,50,70,.25); }
+
+  .hint { text-align: center; color: var(--muted); font-size: 14px; margin: 16px 0 8px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 22px; padding: 0 8px; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  .scrim { position: fixed; inset: 0; background: rgba(70,30,45,.45); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; max-width: 520px; margin: 0 auto;
+    background: #FFF; border-radius: 32px 32px 0 0; border-top: 6px solid var(--pink);
+    padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+    transform: translateY(105%); transition: transform .3s cubic-bezier(.2,.8,.2,1);
+    visibility: hidden;
+  }
+  body.open .scrim { opacity: 1; pointer-events: auto; }
+  body.open .sheet { transform: none; visibility: visible; }
+  .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 14px; }
+  .sheet h2 { font-size: 20px; font-weight: 700; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
+  input {
+    width: 100%; padding: 14px; font: inherit; font-size: 17px; font-weight: 600; color: var(--lcd-ink);
+    background: var(--lcd); border: 2px solid var(--lcd-edge); border-radius: 14px;
+    box-shadow: inset 0 2px 4px rgba(37,48,31,.18);
+  }
+  input::placeholder { color: #5E6B4F; font-weight: 400; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .chip {
+    background: #fff; color: var(--btn-ink); border: 2px solid var(--line); border-radius: 99px;
+    padding: 8px 14px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .sheet .btn.go { width: 100%; margin-top: 20px; padding: 16px; font-size: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sheet, .scrim { transition: none; }
+    .flap-top, .flap-bot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <header>
+    <div>
+      <h1>Week Hours</h1>
+      <p>1 week = 168 hours</p>
+    </div>
+    <div class="led" aria-hidden="true"></div>
+  </header>
+
+  <main id="timers" aria-live="polite"></main>
+  <noscript><p class="hint">Week Hours needs JavaScript to run.</p></noscript>
+
+  <div class="actions"><button class="btn" id="openBtn" type="button">New timer</button></div>
+
+  <footer>Your timers are saved on this device only. Nothing is uploaded.</footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<form class="sheet" id="form" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" inert>
+  <div class="grab"></div>
+  <h2 id="sheetTitle">New timer</h2>
+  <label for="name">Name</label>
+  <input id="name" type="text" placeholder="Gym streak, Exam, Trip" maxlength="40" autocomplete="off">
+  <label for="date">Date and time</label>
+  <input id="date" type="datetime-local" step="60" required>
+  <div class="chips">
+    <button type="button" class="chip" data-h="0">Now</button>
+    <button type="button" class="chip" data-h="-168">1 week ago</button>
+    <button type="button" class="chip" data-h="168">In 1 week</button>
+    <button type="button" class="chip" data-h="672">In 4 weeks</button>
+  </div>
+  <button class="btn go" id="submitBtn" type="submit">Start timer</button>
+</form>
+
+<script>
+  const HPW = 168, DAY_MS = 86400000;
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const mem = {};
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return mem[k] ?? null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { mem[k] = v; } }
+  };
+
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return {
+      week: Math.ceil((((t - yearStart) / DAY_MS) + 1) / 7),
+      year: t.getUTCFullYear()
+    };
+  }
+
+  let timers;
+  try {
+    const raw = JSON.parse(store.get('wh_dial_timers') || '[]');
+    timers = Array.isArray(raw) ? raw.filter(t =>
+      t && t.date && !isNaN(new Date(t.date).getTime())
+    ).map(t => ({
+      id: typeof t.id === 'number' ? t.id : Date.now() + Math.random(),
+      name: typeof t.name === 'string' ? t.name.slice(0, 40) : 'Timer',
+      date: t.date
+    })) : [];
+  } catch (e) { timers = []; }
+
+  let lastId = 0;
+  function nextId() {
+    const now = Date.now();
+    lastId = now > lastId ? now : lastId + 1;
+    return lastId;
+  }
+
+  function half(cls, text) {
+    const d = document.createElement('div');
+    d.className = 'half ' + cls;
+    d.setAttribute('aria-hidden', 'true');
+    d.appendChild(document.createElement('span')).textContent = text;
+    return d;
+  }
+
+  class Flip {
+    constructor(v) {
+      this.el = document.createElement('div');
+      this.el.className = 'flip';
+      this.el.setAttribute('aria-hidden', 'true');
+      this.sizer = document.createElement('span');
+      this.sizer.className = 'sizer';
+      this.el.appendChild(this.sizer);
+      this.topH = half('top', ''); this.botH = half('bot', '');
+      this.el.append(this.topH, this.botH);
+      this.topS = this.topH.firstChild; this.botS = this.botH.firstChild;
+      this.v = null; this.flaps = null; this.timer = null;
+      this.put(v); this.v = v;
+    }
+    put(v) { this.sizer.textContent = this.topS.textContent = this.botS.textContent = v; }
+    endFlip() {
+      clearTimeout(this.timer); this.timer = null;
+      if (this.flaps) { this.flaps.forEach(f => f.remove()); this.flaps = null; }
+      this.botS.textContent = this.topS.textContent;
+    }
+    set(v, anim = true) {
+      if (v === this.v) return;
+      if (this.flaps) this.endFlip();
+      const old = this.v; this.v = v;
+      if (old === null || !anim || reduce.matches || document.hidden) { this.put(v); return; }
+      this.sizer.textContent = v;
+      this.topS.textContent = v;
+      const ft = half('top flap-top', old);
+      const fb = half('bot flap-bot', v);
+      this.flaps = [ft, fb];
+      this.el.append(ft, fb);
+      this.timer = setTimeout(() => this.endFlip(), 640);
+    }
+  }
+
+  function buildScreen(label) {
+    const screen = document.createElement('div');
+    screen.className = 'screen';
+    screen.innerHTML =
+      '<div class="bar"><div class="cl"></div><div class="dy"></div></div>' +
+      '<div class="row"></div>' +
+      '<div class="realtime" aria-hidden="true">' +
+        '<span class="rt-date"></span>' +
+        '<span class="rt-week"></span>' +
+        '<span class="rt-time"></span>' +
+      '</div>';
+    screen.querySelector('.cl').textContent = label;
+    const fd = new Flip('00');
+    const dy = screen.querySelector('.dy');
+    dy.insertAdjacentHTML('beforeend', '<div class="lab">DAYS</div>');
+    dy.append(fd.el);
+    const row = screen.querySelector('.row');
+    const parts = [['HRS', ''], ['MIN', ''], ['SEC', 'small']].map(([lab, cls]) => {
+      const g = document.createElement('div');
+      g.className = 'grp ' + cls;
+      const f = new Flip('00');
+      g.append(f.el);
+      g.insertAdjacentHTML('beforeend', '<div class="lab">' + lab + '</div>');
+      row.append(g);
+      return f;
+    });
+    return {
+      screen, fd, fh: parts[0], fm: parts[1], fs: parts[2],
+      rtDate: screen.querySelector('.rt-date'),
+      rtWeek: screen.querySelector('.rt-week'),
+      rtTime: screen.querySelector('.rt-time')
+    };
+  }
+
+  const FS = { 2: 22, 3: 19, 4: 16, 5: 14, 6: 12, 7: 11 };
+
+  function toLocalInput(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+           'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function build() {
+    const box = $('timers');
+    box.innerHTML = '';
+    if (!timers.length) {
+      const wrap = document.createElement('div');
+      wrap.className = 'timer';
+      wrap.append(buildScreen('NO TIMER').screen);
+      wrap.insertAdjacentHTML('beforeend',
+        '<p class="hint">Add a date to count its hours in weeks of 168.</p>');
+      box.append(wrap);
+      tick();
+      return;
+    }
+    timers.forEach(t => {
+      const wrap = document.createElement('article');
+      wrap.className = 'timer'; wrap.id = 't' + t.id;
+      const s = buildScreen('COUNT UP');
+      wrap.append(s.screen);
+      wrap.insertAdjacentHTML('beforeend',
+        '<div class="info">' +
+        '<div class="line1"><div class="name"></div><div class="wk" data-w></div></div>' +
+        '<div class="meta"></div>' +
+        '<div class="sr-only" data-sr></div>' +
+        '<div class="tools">' +
+          '<button class="btn sm ghost" type="button" data-edit>Edit</button>' +
+          '<button class="btn sm" type="button" data-del>Delete</button>' +
+        '</div></div>');
+      wrap.querySelector('.name').textContent = t.name;
+      wrap.querySelector('.meta').textContent =
+        new Date(t.date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+
+      const editBtn = wrap.querySelector('[data-edit]');
+      editBtn.setAttribute('aria-label', 'Edit ' + t.name);
+      editBtn.onclick = () => openSheet(t, editBtn);
+
+      const btn = wrap.querySelector('[data-del]');
+      btn.setAttribute('aria-label', 'Delete ' + t.name);
+      let armed = null;
+      btn.onclick = () => {
+        if (armed) {
+          clearTimeout(armed);
+          timers = timers.filter(x => x.id !== t.id);
+          save();
+          $('openBtn').focus();
+          return;
+        }
+        btn.textContent = 'Tap again'; btn.classList.add('armed');
+        armed = setTimeout(() => {
+          armed = null; btn.textContent = 'Delete'; btn.classList.remove('armed');
+        }, 3000);
+      };
+
+      wrap._s = s;
+      wrap._hd = 2;
+      wrap._sr = wrap.querySelector('[data-sr]');
+      wrap._lastRtKey = '';
+      wrap._lastSrSec = -1;
+      box.append(wrap);
+    });
+    tick();
+  }
+
+  function save() { store.set('wh_dial_timers', JSON.stringify(timers)); build(); }
+
+  function tick() {
+    const now = Date.now();
+    const nowDate = new Date(now);
+    const iso = isoWeek(nowDate);
+
+    const rtDateStr = nowDate.toLocaleDateString([], {
+      weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+    });
+    const rtTimeStr = nowDate.toLocaleTimeString([], {
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    });
+    const rtWeekStr = 'W' + pad(iso.week) + ' · ' + iso.year;
+    const rtKey = rtDateStr + '|' + rtWeekStr;
+
+    // Empty-state dial shows the clock only
+    const empty = document.querySelector('.timer:not([id])');
+    if (empty && !timers.length) {
+      const rt = empty.querySelector('.rt-time');
+      if (rt) {
+        rt.textContent = rtTimeStr;
+        empty.querySelector('.rt-date').textContent = rtDateStr;
+        empty.querySelector('.rt-week').textContent = rtWeekStr;
+      }
+    }
+
+    timers.forEach(t => {
+      const el = $('t' + t.id);
+      if (!el || !el._s) return;
+      const s = el._s;
+      const target = new Date(t.date).getTime();
+      const diff = target - now;
+      const down = diff > 0;
+      const secs = Math.floor(Math.abs(diff) / 1000);
+      const hrs = Math.floor(secs / 3600);
+      const weeks = Math.floor(hrs / HPW);
+      const hs = String(hrs).padStart(2, '0');
+
+      if (hs.length !== el._hd) {
+        el._hd = hs.length;
+        s.screen.style.setProperty('--fs', (FS[hs.length] || 11) + 'cqw');
+      }
+      s.fd.set(pad(Math.floor(secs / 86400)));
+      s.fh.set(hs);
+      s.fm.set(pad(Math.floor((secs % 3600) / 60)));
+      s.fs.set(pad(secs % 60));
+      s.screen.querySelector('.cl').textContent = down ? 'COUNT DOWN' : 'COUNT UP';
+      el.querySelector('[data-w]').textContent =
+        weeks + (weeks === 1 ? ' week' : ' weeks') + ' + ' + (hrs % HPW) + ' h';
+
+      s.rtTime.textContent = rtTimeStr;
+      if (el._lastRtKey !== rtKey) {
+        el._lastRtKey = rtKey;
+        s.rtDate.textContent = rtDateStr;
+        s.rtWeek.textContent = rtWeekStr;
+      }
+
+      // Screen-reader text updates once a minute so it isn't read out every second
+      const minuteKey = Math.floor(secs / 60);
+      if (minuteKey !== el._lastSrSec) {
+        el._lastSrSec = minuteKey;
+        el._sr.textContent =
+          t.name + ': ' + (down ? 'counting down, ' : 'counting up, ') +
+          weeks + (weeks === 1 ? ' week ' : ' weeks ') + (hrs % HPW) + ' hours ' +
+          Math.floor((secs % 3600) / 60) + ' minutes.';
+      }
+    });
+  }
+
+  /* ---------- Sheet (create / edit) ---------- */
+  const sheet = $('form');
+  let editingId = null, lastFocus = null;
+
+  const setDate = h => { $('date').value = toLocalInput(new Date(Date.now() + h * 3600000)); };
+
+  function openSheet(timer, opener) {
+    lastFocus = opener || $('openBtn');
+    editingId = timer ? timer.id : null;
+    $('sheetTitle').textContent = timer ? 'Edit timer' : 'New timer';
+    $('submitBtn').textContent = timer ? 'Save changes' : 'Start timer';
+    $('name').value = timer ? timer.name : '';
+    if (timer) $('date').value = timer.date; else setDate(0);
+    sheet.inert = false;
+    document.body.classList.add('open');
+    setTimeout(() => $('name').focus(), 250);
+  }
+  function closeSheet() {
+    if (!document.body.classList.contains('open')) return;
+    document.body.classList.remove('open');
+    sheet.inert = true;
+    editingId = null;
+    if (lastFocus) lastFocus.focus();
+  }
+
+  $('openBtn').onclick = () => openSheet(null, $('openBtn'));
+  $('scrim').onclick = closeSheet;
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => setDate(Number(c.dataset.h)));
+
+  sheet.addEventListener('submit', e => {
+    e.preventDefault();
+    const value = $('date').value;
+    if (!value || isNaN(new Date(value).getTime())) return;
+    const name = $('name').value.trim().slice(0, 40) || 'Timer';
+    if (editingId !== null) {
+      const t = timers.find(x => x.id === editingId);
+      if (t) { t.name = name; t.date = value; }
+    } else {
+      timers.unshift({ id: nextId(), name, date: value });
+    }
+    lastFocus = $('openBtn');
+    closeSheet();
+    save();
+  });
+
+  build();
+  setInterval(tick, 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+
+  // Install support: build the web app manifest in code so everything stays in one file
+  (function () {
+    const manifest = {
+      name: 'Week Hours',
+      short_name: 'Week Hours',
+      description: 'Count any date in hours, grouped into weeks of 168.',
+      start_url: location.href.split('#')[0],
+      display: 'standalone',
+      background_color: '#F0B6C1',
+      theme_color: '#F0B6C1',
+      icons: [{ src: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0iI0YwQjZDMSIvPgogIDxyZWN0IHg9Ijg2IiB5PSIxNDYiIHdpZHRoPSIzNDAiIGhlaWdodD0iMjIwIiByeD0iMzYiIGZpbGw9IiMxNzE3MTciLz4KICA8cmVjdCB4PSI4NiIgeT0iMjUzIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjYiIGZpbGw9IiMwMDAiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjMxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNzAwIiBmb250LXNpemU9IjE1MCIgZmlsbD0iI0VDRUNFQyI+MTY4PC90ZXh0Pgo8L3N2Zz4K', sizes: 'any', type: 'image/svg+xml' }]
+    };
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+    document.head.appendChild(link);
+  })();
+</script>
+</body>
+</html>
